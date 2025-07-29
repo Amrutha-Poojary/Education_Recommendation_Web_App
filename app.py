@@ -2,12 +2,10 @@ import streamlit as st
 import pickle
 import pandas as pd
 
-# Load models
 encoder = pickle.load(open("models/encoder.pkl", 'rb'))
 scaler = pickle.load(open("models/scaler.pkl", 'rb'))
 model_rfc = pickle.load(open("models/model_rfc.pkl", 'rb'))
 
-# Career map with emojis
 career_aspiration_map = {
     0: '👨‍💻 Software Engineer', 1: '💼 Business Owner', 2: '❓ Unknown', 3: '🏦 Banker',
     4: '⚖️ Lawyer', 5: '📊 Accountant', 6: '🩺 Doctor', 7: '🏘️ Real Estate Developer',
@@ -16,7 +14,6 @@ career_aspiration_map = {
     14: '🖌️ Designer', 15: '🔬 Scientist', 16: '✍️ Writer'
 }
 
-# Motivational quotes
 career_quotes = {
     "👨‍💻 Software Engineer": "Build the future, one line of code at a time.",
     "🩺 Doctor": "Your hands will heal lives.",
@@ -37,7 +34,6 @@ career_quotes = {
     "❓ Unknown": "Keep learning. Your path will emerge."
 }
 
-# Prediction function
 def predict_career(gender, part_time_job, absence_days, extracurricular_activities, weekly_self_study_hours,
                    math_score, history_score, physics_score, chemistry_score, biology_score, english_score,
                    geography_score, total_score, average_score):
@@ -51,12 +47,10 @@ def predict_career(gender, part_time_job, absence_days, extracurricular_activiti
                                        'chemistry_score', 'biology_score', 'english_score', 'geography_score',
                                        'total_score', 'average_score'])
     
-    # Encode categorical
     input_data['gender'] = encoder.transform(input_data['gender'])
     input_data['part_time_job'] = encoder.transform(input_data['part_time_job'])
     input_data['extracurricular_activities'] = encoder.transform(input_data['extracurricular_activities'])
 
-    # Scale numeric
     input_data[['absence_days', 'weekly_self_study_hours', 'math_score', 'history_score',
                 'physics_score', 'chemistry_score', 'biology_score',
                 'english_score', 'geography_score']] = scaler.transform(
@@ -67,12 +61,10 @@ def predict_career(gender, part_time_job, absence_days, extracurricular_activiti
     result = model_rfc.predict(input_data)
     return career_aspiration_map[result[0]]
 
-# Streamlit UI
 st.set_page_config(page_title="Career Aspiration Predictor", layout="centered")
 st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🎯 Career Aspiration Predictor</h1>", unsafe_allow_html=True)
 st.markdown("#### Enter your academic and personal background to see your predicted career path.")
 
-# Personal background inputs
 st.markdown("###  Personal & Background Info")
 col1, col2 = st.columns(2)
 with col1:
@@ -82,7 +74,6 @@ with col2:
     extracurricular_activities = st.selectbox("Extracurricular Activities", ['Yes', 'No'])
     absence_days = st.slider("Absence Days", 0, 30, 2)
 
-# Academic scores
 st.markdown("### 📚 Academic Scores ")
 col3, col4 = st.columns(2)
 with col3:
@@ -97,21 +88,17 @@ with col4:
     geography_score = st.number_input("Geography", 0, 100, 88)
     weekly_self_study_hours = st.slider("Weekly Self Study Hours", 0, 40, 10)
 
-# Calculate scores
 subject_scores = [math_score, history_score, physics_score, chemistry_score, biology_score, english_score, geography_score]
 total_score = sum(subject_scores)
 average_score = round(total_score / len(subject_scores), 2)
 
-# Centered Score Summary
 st.markdown("<h3 style='text-align: center;'>📊 Score Summary</h3>", unsafe_allow_html=True)
 center_col = st.columns(3)
 with center_col[1]:
     st.metric(label="Total Score", value=total_score)
     st.metric(label="Average Score", value=average_score)
 
-# Predict button
 if st.button("🔍 Predict Career"):
-    # Convert Yes/No to model-expected format
     part_time_job_input = 'True' if part_time_job == 'Yes' else 'False'
     extra_activities_input = 'True' if extracurricular_activities == 'Yes' else 'False'
 
@@ -122,7 +109,6 @@ if st.button("🔍 Predict Career"):
         total_score, average_score
     )
 
-    # Pretty prediction box
     st.markdown(
         f"""
         <div style='
